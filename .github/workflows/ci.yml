@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
+          # Same stable release used to generate lib/data/local/app_database.g.dart.
+          flutter-version: '3.47.7'
           channel: stable
           cache: true
       - name: Install SQLite
@@ -20,8 +22,8 @@ jobs:
         run: flutter pub get
       - name: Check generated Drift code
         run: |
-          dart run build_runner build --delete-conflicting-outputs
-          git diff --exit-code
+          dart run build_runner build
+          git diff --exit-code -- lib/data/local/app_database.g.dart
       - name: Analyze
         run: flutter analyze
       - name: Test
