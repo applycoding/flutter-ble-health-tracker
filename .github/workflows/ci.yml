@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          # Same stable release used to generate lib/data/local/app_database.g.dart.
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+      - name: Install SQLite
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-0
+      - name: Resolve packages
+        run: flutter pub get
+      - name: Check generated Drift code
+        run: |
+          dart run build_runner build
+          git diff --exit-code -- lib/data/local/app_database.g.dart
+      - name: Analyze
+        run: flutter analyze
+      - name: Test
+        run: flutter test
